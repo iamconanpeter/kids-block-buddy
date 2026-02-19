@@ -8,13 +8,16 @@ data class MissionCard(
     val title: String,
     val minTotalBlocks: Int,
     val requiredByType: Map<BlockType, Int>,
-    val rewardStars: Int
+    val rewardStars: Int,
+    val stickerReward: String = "starter_tree",
+    val celebrationLine: String = "Amazing build, buddy!"
 )
 
 data class MissionProgress(
     val totalPlaced: Int,
     val byType: Map<BlockType, Int>,
-    val complete: Boolean
+    val complete: Boolean,
+    val completionRatio: Float = 0f
 )
 
 class MissionEngine {
@@ -34,7 +37,8 @@ class MissionEngine {
         return MissionProgress(
             totalPlaced = totalPlaced,
             byType = counts,
-            complete = totalPlaced >= mission.minTotalBlocks && typeGoalsMet
+            complete = totalPlaced >= mission.minTotalBlocks && typeGoalsMet,
+            completionRatio = completionRatio(mission, counts, totalPlaced)
         )
     }
 
@@ -52,14 +56,61 @@ class MissionEngine {
             "Great work! Mission complete."
         }
     }
+
+    private fun completionRatio(
+        mission: MissionCard,
+        counts: Map<BlockType, Int>,
+        totalPlaced: Int
+    ): Float {
+        val totalRatio = (totalPlaced.toFloat() / mission.minTotalBlocks.toFloat()).coerceIn(0f, 1f)
+        val typeRatios = mission.requiredByType.map { (type, required) ->
+            (counts.getOrDefault(type, 0).toFloat() / required.toFloat()).coerceIn(0f, 1f)
+        }
+
+        val allRatios = if (typeRatios.isEmpty()) listOf(totalRatio) else listOf(totalRatio) + typeRatios
+        return allRatios.average().toFloat()
+    }
 }
 
 object Missions {
-    fun firstMission() = MissionCard(
-        id = "welcome_park",
-        title = "Build a Tiny Park",
-        minTotalBlocks = 8,
-        requiredByType = mapOf(BlockType.GRASS to 3, BlockType.FLOWER to 2),
-        rewardStars = 3
+    val phaseTwoPool: List<MissionCard> = listOf(
+        MissionCard(
+            id = "welcome_park",
+            title = "Build a Tiny Park",
+            minTotalBlocks = 8,
+            requiredByType = mapOf(BlockType.GRASS to 3, BlockType.FLOWER to 2),
+            rewardStars = 3,
+            stickerReward = "sunny-tree",
+            celebrationLine = "Your park looks super cozy!"
+        ),
+        MissionCard(
+            id = "camp_corner",
+            title = "Cozy Camp Corner",
+            minTotalBlocks = 10,
+            requiredByType = mapOf(BlockType.WOOD to 4, BlockType.STONE to 2),
+            rewardStars = 4,
+            stickerReward = "campfire-badge",
+            celebrationLine = "Camp setup complete. High-five!"
+        ),
+        MissionCard(
+            id = "flower_festival",
+            title = "Flower Festival",
+            minTotalBlocks = 12,
+            requiredByType = mapOf(BlockType.FLOWER to 4, BlockType.GRASS to 3),
+            rewardStars = 5,
+            stickerReward = "flower-crown",
+            celebrationLine = "What a colorful festival!"
+        ),
+        MissionCard(
+            id = "stone_bridge",
+            title = "Stone Bridge Path",
+            minTotalBlocks = 12,
+            requiredByType = mapOf(BlockType.STONE to 5, BlockType.WOOD to 3),
+            rewardStars = 5,
+            stickerReward = "bridge-builder",
+            celebrationLine = "Bridge complete. You are a clever builder!"
+        )
     )
+
+    fun firstMission() = phaseTwoPool.first()
 }

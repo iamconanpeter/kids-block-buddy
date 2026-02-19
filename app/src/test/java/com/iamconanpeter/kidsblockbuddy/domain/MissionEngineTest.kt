@@ -1,5 +1,6 @@
 package com.iamconanpeter.kidsblockbuddy.domain
 
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -22,6 +23,7 @@ class MissionEngineTest {
 
         val progress = engine.evaluate(world, Missions.firstMission())
         assertTrue(progress.complete)
+        assertEquals(1f, progress.completionRatio, 0.0001f)
     }
 
     @Test
@@ -33,6 +35,7 @@ class MissionEngineTest {
 
         val progress = engine.evaluate(world, Missions.firstMission())
         assertFalse(progress.complete)
+        assertTrue(progress.completionRatio < 1f)
     }
 
     @Test
@@ -42,5 +45,18 @@ class MissionEngineTest {
 
         val hint = engine.nextHint(progress, Missions.firstMission())
         assertTrue(hint.contains("grass") || hint.contains("flower"))
+    }
+
+    @Test
+    fun completionRatioReflectsPartialProgress() {
+        var world = WorldGrid.empty(4, 2)
+        world = world.place(GridPosition(0, 0), BlockType.GRASS)
+        world = world.place(GridPosition(1, 0), BlockType.FLOWER)
+
+        val progress = engine.evaluate(world, Missions.firstMission())
+
+        assertFalse(progress.complete)
+        assertTrue(progress.completionRatio > 0f)
+        assertTrue(progress.completionRatio < 1f)
     }
 }

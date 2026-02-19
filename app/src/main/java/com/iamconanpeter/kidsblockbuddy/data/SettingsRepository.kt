@@ -16,7 +16,10 @@ class SettingsRepository(private val context: Context) {
         AppSettings(
             largerControls = pref[Keys.LARGER_CONTROLS] ?: false,
             cameraSensitivity = pref[Keys.CAMERA_SENSITIVITY] ?: 5,
-            blueprintAssist = pref[Keys.BLUEPRINT_ASSIST] ?: true
+            blueprintAssist = pref[Keys.BLUEPRINT_ASSIST] ?: true,
+            dailyChallengeMode = pref[Keys.DAILY_CHALLENGE_MODE] ?: false,
+            feedbackCuesEnabled = pref[Keys.FEEDBACK_CUES_ENABLED] ?: true,
+            sensoryCalmMode = pref[Keys.SENSORY_CALM_MODE] ?: false
         )
     }
 
@@ -32,15 +35,33 @@ class SettingsRepository(private val context: Context) {
         context.settingsDataStore.edit { it[Keys.BLUEPRINT_ASSIST] = enabled }
     }
 
+    suspend fun setDailyChallengeMode(enabled: Boolean) {
+        context.settingsDataStore.edit { it[Keys.DAILY_CHALLENGE_MODE] = enabled }
+    }
+
+    suspend fun setFeedbackCuesEnabled(enabled: Boolean) {
+        context.settingsDataStore.edit { it[Keys.FEEDBACK_CUES_ENABLED] = enabled }
+    }
+
+    suspend fun setSensoryCalmMode(enabled: Boolean) {
+        context.settingsDataStore.edit { it[Keys.SENSORY_CALM_MODE] = enabled }
+    }
+
     private object Keys {
         val LARGER_CONTROLS = booleanPreferencesKey("larger_controls")
         val CAMERA_SENSITIVITY = intPreferencesKey("camera_sensitivity")
         val BLUEPRINT_ASSIST = booleanPreferencesKey("blueprint_assist")
+        val DAILY_CHALLENGE_MODE = booleanPreferencesKey("daily_challenge_mode")
+        val FEEDBACK_CUES_ENABLED = booleanPreferencesKey("feedback_cues_enabled")
+        val SENSORY_CALM_MODE = booleanPreferencesKey("sensory_calm_mode")
     }
 }
 
 data class AppSettings(
-    val largerControls: Boolean,
-    val cameraSensitivity: Int,
-    val blueprintAssist: Boolean
+    val largerControls: Boolean = false,
+    val cameraSensitivity: Int = 5,
+    val blueprintAssist: Boolean = true,
+    val dailyChallengeMode: Boolean = false,
+    val feedbackCuesEnabled: Boolean = true,
+    val sensoryCalmMode: Boolean = false
 )
