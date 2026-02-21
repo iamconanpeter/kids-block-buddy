@@ -1,7 +1,7 @@
-# Kids Block Buddy — Technical Plan (Plan Mode, No Implementation)
+# Kids Block Buddy — Technical Plan (MVP-Aligned)
 
 **Selected Concept:** Block Buddy Village  
-**Phase:** Pre-implementation architecture and delivery planning only
+**Phase:** Architecture and delivery planning aligned to current MVP implementation
 
 ---
 
@@ -142,20 +142,30 @@
 
 ---
 
-## 8) Quality Assurance Strategy
+## 8) MVP Test Strategy (Concrete)
 
-## 8.1 Test Categories
-- **Unit tests:** world placement rules, mission evaluator, progression unlock logic.
-- **Simulation tests:** scripted gameplay sequences for deterministic outcomes.
-- **Instrumented tests:** onboarding flow, parent gate, resume behavior.
-- **Performance tests:** frame time under stress scenarios (dense build zones).
-- **Safety tests:** no external comm paths, parent gate enforcement, local data purge.
+## 8.1 Scope Map by Test Layer
 
-## 8.2 Exit Criteria for Build Readiness
-- First-session funnel passes without blockers.
-- Save/load reliability proven across force-close scenarios.
-- Performance and memory targets met on reference devices.
-- Safety and privacy checklist fully green.
+| MVP Capability | Unit (JVM) | Integration (Android/in-process) | E2E (instrumented/manual scripted) |
+|---|---|---|---|
+| Placement + erase rules | `PlacementValidator` success/error paths, bounds and support checks | `GameViewModel.placeAt` state transitions with snapshot persistence trigger | Child flow: place/remove blocks on device and verify board + feedback text |
+| Mission progress and rewards | `MissionEngine.evaluate` and `nextHint`; mission completion reward math | `GameViewModel` mission complete updates stars/stickers/completed IDs once only | Start mission from empty board, complete mission, verify celebration and stars |
+| Daily and welcome-back fairness | `DailyMissionPlanner` deterministic day key; `WelcomeBackRewardEngine` >=24h behavior | App load with saved snapshot applies one-time welcome-back stars and persists | Cold-open after mocked elapsed time shows friendly hint once; immediate reopen grants none |
+| Save/load reliability | Snapshot schema serialization defaults and backward-safe parsing | `WorldSaveRepository` primary/backup fallback on corrupted primary | Force close + relaunch returns same world, stars, mission, and settings |
+| Parent trust controls | Parent-gate decision logic and guard conditions | Settings toggles gated behind parent gate, then persisted | Attempt settings change without gate fails; with gate succeeds |
+| Accessibility toggles | Settings domain defaults and clamp logic | `SettingsRepository` read/write round-trip | Toggle larger controls/blueprint/sensory calm and verify visible UI behavior |
+
+## 8.2 MVP Minimum Test Targets
+- Unit tests: all domain engines touched by MVP loop (`Placement`, `Mission`, `Daily planner`, `Combo`, `Welcome-back`) with deterministic timestamps.
+- Integration tests: at least one end-to-end state transition per major flow (`load`, `place`, `mission complete`, `persist`, `reload`).
+- E2E checks: onboarding to first mission completion, parent gate path, force-close resume path.
+
+## 8.3 Done Criteria (Quality Gate)
+- All unit and integration suites pass in CI and locally on debug build.
+- `assembleDebug` succeeds with no compile warnings elevated to errors.
+- No duplicate reward grant on immediate reopen after welcome-back reward.
+- First-session success path reproducible on reference mid-tier Android device.
+- Safety checklist green: no chat surfaces, no outbound links in child flow, parent gate enforced.
 
 ---
 
@@ -171,9 +181,9 @@
 
 ---
 
-## 10) Model Recommendation for Implementation Phase
+## 10) Model Recommendation for Implementation Track
 
-When implementation begins (after sign-off), use:
+For ongoing MVP implementation work, use:
 - **Model:** `gpt-5.3-codex`
 - **Effort setting:** **high-effort** (for architecture-safe refactors, test completeness, and reliability-focused coding)
 

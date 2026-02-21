@@ -4,7 +4,7 @@
 **Platform:** Android (phone + tablet), landscape-first  
 **Target Age:** 7+  
 **Genre Goal:** Kid-friendly, Minecraft-vibe creative sandbox with light goals and zero scary pressure  
-**Status:** Design exploration only — **no implementation in this phase**
+**Status:** Plan-mode baseline with MVP-aligned scope updates
 
 ---
 
@@ -24,6 +24,24 @@ Create a cozy block-building adventure that captures the joy of Minecraft-style 
 - Child can complete first build mission in under 8 minutes without adult help.
 - Parent can understand safety rules from one settings panel in under 90 seconds.
 - Frame pacing and touch response should feel premium on mid-tier Android (smooth and predictable).
+
+### USP (One Sentence)
+Kids Block Buddy is a kid-safe, offline-friendly block-building game that delivers Minecraft-like creative joy with gentle missions, no social risk, and no punishment loops.
+
+### Three Differentiators
+1. Safety-first by design: no chat, no UGC sharing, and no external-link exposure in child flow.
+2. Guided creativity: mission cards reduce overwhelm while still preserving free-build expression.
+3. Non-punitive progression: missed days and mistakes never erase progress or value.
+
+### Three Retention Hooks (MVP)
+1. Daily optional visitor mission with catch-up framing.
+2. Sticker shelf unlocks tied to mission completion milestones.
+3. Friendly welcome-back bonus after long breaks (no streak loss pressure).
+
+### Three Quality Bars (MVP)
+1. Input confidence: immediate visual acknowledgement for tap/drag placement.
+2. Save reliability: resume returns to the exact last mission/world context.
+3. Clarity by default: first-session success path reaches a completed mission in under 8 minutes.
 
 ---
 
@@ -283,7 +301,9 @@ Weights: Accessibility 25%, Creativity 20%, Technical Feasibility 20%, Retention
 
 ---
 
-## 6) Explicit Discovery Q&A (50 Items)
+## 6) Explicit Discovery Q&A (50 Items, Decision Log)
+
+This Q&A list is the explicit discovery artifact for plan-mode sign-off. It captures product decisions, unresolved risks, and guardrails that must remain true through MVP delivery.
 
 ## Product Strategy
 1. **Q:** Why Minecraft-vibe instead of exact clone?  
@@ -442,10 +462,32 @@ Weights: Accessibility 25%, Creativity 20%, Technical Feasibility 20%, Retention
 
 ---
 
-## 7) Selected Concept for Planning
+## 7) MVP Scope Boundaries
+
+### In Scope (MVP)
+- Android Kotlin + Compose app shell with kid-safe onboarding and parent gate.
+- One polished block-building play loop: place/remove, mission progress, stars, stickers, undo.
+- Offline-first local save/load with resilient snapshot persistence.
+- Deterministic daily mission selection and non-punitive welcome-back reward behavior.
+- Core accessibility toggles already defined in settings (larger controls, blueprint assist, sensory calm mode).
+
+### Out of Scope (MVP)
+- Multiplayer, chat, UGC sharing, or open community surfaces.
+- In-app economy complexity (battle pass, gacha, paid power ups).
+- Cross-device sync and cloud account systems.
+- Large-scale content cadence systems (season frameworks, live events backend).
+
+### Post-MVP Candidate List
+1. Cloud backup under parent gate with explicit consent and restore controls.
+2. Expanded district packs with monthly themed mission bundles.
+3. Optional narrated hints and broader localization coverage.
+4. More advanced creative tools (templates, symmetry assist, replay postcards).
+5. Parent-facing progress digest and playtime trend summary.
+
+## 8) Selected Concept for Planning
 
 **Selected Top Concept:** **Concept A — Block Buddy Village**
 
 **Reason:** Best combined score on accessibility, creativity, safety clarity, and scalable content with manageable technical risk.
 
-**Next Step:** Produce technical and task plans for this concept only (still no coding).
+**Next Step:** Execute the P0 MVP tasks, validate deterministic reward fairness behavior, and clear test/build gates.

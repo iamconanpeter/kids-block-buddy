@@ -20,6 +20,7 @@ import com.iamconanpeter.kidsblockbuddy.domain.Missions
 import com.iamconanpeter.kidsblockbuddy.domain.PlacementResult
 import com.iamconanpeter.kidsblockbuddy.domain.PlacementValidator
 import com.iamconanpeter.kidsblockbuddy.domain.UndoStack
+import com.iamconanpeter.kidsblockbuddy.domain.WelcomeBackRewardEngine
 import com.iamconanpeter.kidsblockbuddy.domain.WorldGrid
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -79,6 +80,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
     private val undoStack = UndoStack(capacity = 20)
     private val missionPlanner = DailyMissionPlanner()
     private val comboEngine = ComboEngine()
+    private val welcomeBackRewardEngine = WelcomeBackRewardEngine()
 
     private val _ui = MutableStateFlow(GameUiState())
     val ui: StateFlow<GameUiState> = _ui.asStateFlow()
@@ -107,28 +109,43 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
 
         viewModelScope.launch {
             val snapshot = saveRepo.load()
+            val nowMs = System.currentTimeMillis()
+            val welcomeBackReward = welcomeBackRewardEngine.evaluate(
+                currentStars = snapshot.stars,
+                lastSnapshotUpdatedAtMs = snapshot.updatedAtEpochMs,
+                nowEpochMs = nowMs
+            )
+            val hydratedSnapshot = if (welcomeBackReward.granted) {
+                snapshot.copy(
+                    stars = welcomeBackReward.starsAfterReward,
+                    updatedAtEpochMs = nowMs
+                ).also { saveRepo.save(it) }
+            } else {
+                snapshot
+            }
+
             val initialMission = if (_ui.value.settings.dailyChallengeMode) {
                 missionPlanner.missionOfDay(
                     missions = Missions.phaseTwoPool,
-                    completedCount = snapshot.completedMissionIds.size
+                    completedCount = hydratedSnapshot.completedMissionIds.size
                 )
             } else {
-                snapshot.activeMission
+                hydratedSnapshot.activeMission
             }
 
-            val progress = missionEngine.evaluate(snapshot.world, initialMission)
+            val progress = missionEngine.evaluate(hydratedSnapshot.world, initialMission)
             missionRewardClaimed = progress.complete
 
             _ui.update {
                 it.copy(
                     loading = false,
-                    world = snapshot.world,
-                    stars = snapshot.stars,
+                    world = hydratedSnapshot.world,
+                    stars = hydratedSnapshot.stars,
                     mission = initialMission,
                     missionProgress = progress,
-                    hintText = missionEngine.nextHint(progress, initialMission),
-                    stickersUnlocked = snapshot.stickerBook,
-                    completedMissionIds = snapshot.completedMissionIds,
+                    hintText = welcomeBackReward.hintText ?: missionEngine.nextHint(progress, initialMission),
+                    stickersUnlocked = hydratedSnapshot.stickerBook,
+                    completedMissionIds = hydratedSnapshot.completedMissionIds,
                     todaysMissionTitle = missionPlanner.missionOfDay(Missions.phaseTwoPool).title
                 )
             }
